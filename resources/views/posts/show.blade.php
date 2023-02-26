@@ -18,6 +18,9 @@
                     <div class="card-body">
                         <img src="{{ asset('storage/posts/' . $post->image) }}" class="w-100 rounded">
                         <hr>
+                        <div class="alert alert-primary" role="alert">
+                            {{ $post->file }}
+                        </div>
                         <h4>{{ $post->title }}</h4>
                         <p class="tmt-3">
                             {!! $post->content !!}

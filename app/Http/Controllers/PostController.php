@@ -2,8 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\Post\StoreRequest;
+use App\Http\Requests\Post\UpdateRequest;
 use App\Models\Post;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
 class PostController extends Controller
@@ -29,29 +30,26 @@ class PostController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(StoreRequest $request)
     {
-        // validasi form
-        $this->validate($request, [
-            'image' => 'required|image|mimes:png,jpg,png|max:2048',
-            'title' => 'required|min:5',
-            'content' => 'required|min:10',
-        ]);
-
-        // update image
+        // upload image
         $image = $request->file('image');
         $image->storeAs('public/posts', $image->hashName());
+
+        // upload file
+        $file = $request->file('file');
+        $file->storeAs('public/posts', $file->hashName());
 
         // create post
         Post::create([
             'image' => $image->hashName(),
+            'file' => $file->hashName(),
             'title' => $request->title,
             'content' => $request->content,
         ]);
 
         //redirect to index
         return redirect()->route('posts.index')->with(['success' => 'Data Berhasil Disimpan!']);
-
     }
 
     /**
@@ -77,21 +75,13 @@ class PostController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(UpdateRequest $request, string $id)
     {
-        //validate form
-        $this->validate($request, [
-            'image' => 'image|mimes:jpeg,jpg,png|max:2048',
-            'title' => 'required|min:5',
-            'content' => 'required|min:10',
-        ]);
-
         //get post by ID
         $post = Post::findOrFail($id);
 
         //check if image is uploaded
         if ($request->hasFile('image')) {
-
             //upload new image
             $image = $request->file('image');
             $image->storeAs('public/posts', $image->hashName());
@@ -100,20 +90,27 @@ class PostController extends Controller
             Storage::delete('public/posts/' . $post->image);
 
             //update post with new image
-            $post->update([
-                'image' => $image->hashName(),
-                'title' => $request->title,
-                'content' => $request->content,
-            ]);
-
-        } else {
-
-            //update post without image
-            $post->update([
-                'title' => $request->title,
-                'content' => $request->content,
-            ]);
+            $post->image = $image->hashName();
         }
+
+        //check if file is uploaded
+        if ($request->hasFile('file')) {
+            //upload new file
+            $file = $request->file('file');
+            $file->storeAs('public/posts', $file->hashName());
+
+            //delete old file
+            Storage::delete('public/posts/' . $post->file);
+
+            //update post with new file
+            $post->file = $file->hashName();
+        }
+
+        //update post without image
+        $post->update([
+            'title' => $request->title,
+            'content' => $request->content,
+        ]);
 
         //redirect to index
         return redirect()->route('posts.index')->with(['success' => 'Data Berhasil Diubah!']);
@@ -127,8 +124,9 @@ class PostController extends Controller
         //get post by ID
         $post = Post::findOrFail($id);
 
-        //delete image
+        //delete file
         Storage::delete('public/posts/' . $post->image);
+        Storage::delete('public/posts/' . $post->file);
 
         //delete post
         $post->delete();

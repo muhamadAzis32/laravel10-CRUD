@@ -24,6 +24,13 @@
                             <div class="form-group">
                                 <label class="font-weight-bold">GAMBAR</label>
                                 <input type="file" class="form-control" name="image">
+                                <small class="form-text text-muted">{{$post->image}}</small>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="font-weight-bold">FILE</label>
+                                <input type="file" class="form-control" name="file">
+                                <small class="form-text text-muted">{{$post->file}}</small>
                             </div>
 
                             <div class="form-group">

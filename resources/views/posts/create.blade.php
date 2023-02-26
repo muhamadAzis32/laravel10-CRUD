@@ -34,6 +34,19 @@
                             </div>
 
                             <div class="form-group">
+                                <label class="font-weight-bold">FILE</label>
+                                <input type="file" class="form-control @error('file') is-invalid @enderror"
+                                    name="file">
+
+                                <!-- error message untuk title -->
+                                @error('file')
+                                    <div class="alert alert-danger mt-2">
+                                        {{ $message }}
+                                    </div>
+                                @enderror
+                            </div>
+
+                            <div class="form-group">
                                 <label class="font-weight-bold">JUDUL</label>
                                 <input type="text" class="form-control @error('title') is-invalid @enderror"
                                     name="title" value="{{ old('title') }}" placeholder="Masukkan Judul Post">
